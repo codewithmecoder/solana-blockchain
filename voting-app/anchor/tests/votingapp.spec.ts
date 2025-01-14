@@ -93,5 +93,20 @@ describe("votingapp", () => {
     expect(smoothCandidate.candidateName).toEqual("Smooth");
     expect(smoothCandidate.candidateVote.toNumber()).toEqual(0);
   });
-  it("vote", async () => {});
+  it("vote", async () => {
+    await votingProgram.methods.vote("Smooth", new BN(1)).rpc();
+
+    const pollId = new BN(1).toArrayLike(Buffer, "le", 8);
+    const [smoothAddress] = PublicKey.findProgramAddressSync(
+      [Buffer.from("Smooth"), pollId],
+      votingAddress
+    );
+    const smoothCandidate = await votingProgram.account.candidate.fetch(
+      smoothAddress
+    );
+
+    console.log(smoothCandidate);
+
+    expect(smoothCandidate.candidateVote.toNumber()).toEqual(1);
+  });
 });
